@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071b16">
+  <meta name="description" content="Emerald Royal Hanoi — a royal Tower of Hanoi puzzle game.">
+  <title>Emerald Royal Hanoi</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="game.js" defer></script>
+</head>
+<body>
+  <canvas id="particles" aria-hidden="true"></canvas>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <main id="app">
+    <section id="splash" class="screen splash-screen">
+      <div class="crest">✦</div>
+      <p class="eyebrow">THE ROYAL PUZZLE COLLECTION</p>
+      <h1>EMERALD <span>ROYAL</span><br>HANOI</h1>
+      <p class="intro-copy">A timeless challenge. A royal mind. One perfect move at a time.</p>
+      <button id="enterBtn" class="btn btn-primary btn-large">ENTER THE ROYAL GAME <span>↗</span></button>
+      <p class="microcopy">Sound begins after your first interaction</p>
+    </section>
+
+    <section id="modeScreen" class="screen hidden">
+      <header class="topbar">
+        <a class="wordmark" href="#" data-home>✦ <span>EMERALD ROYAL</span></a>
+        <nav><button class="nav-btn" data-screen="leaderboardScreen">Leaderboard</button><button class="nav-btn" data-screen="settingsScreen">Settings</button></nav>
+      </header>
+      <div class="section-heading">
+        <p class="eyebrow">CHOOSE YOUR DESTINY</p>
+        <h2>Select a <em>Royal Challenge</em></h2>
+        <p>Each realm brings a new atmosphere. Every move brings you closer to mastery.</p>
+      </div>
+      <div id="modeCards" class="mode-grid">
+        <button class="mode-card easy" data-mode="EASY"><span class="mode-icon">❋</span><span class="mode-tag">BEGINNER</span><strong>Emerald Garden</strong><span class="mode-desc">A gentle introduction in a pearl-lit garden.</span><span class="mode-meta">3 DISKS · CALM & GRACEFUL</span><span class="mini-towers"><i></i><i></i><i></i></span><span class="preview-hint">HOVER TO PREVIEW</span></button>
+        <button class="mode-card hard" data-mode="HARD"><span class="mode-icon">♜</span><span class="mode-tag">INTERMEDIATE</span><strong>Royal Emerald</strong><span class="mode-desc">A gilded test of patience and precision.</span><span class="mode-meta">5 DISKS · REFINED STRATEGY</span><span class="mini-towers"><i></i><i></i><i></i></span><span class="preview-hint">HOVER TO PREVIEW</span></button>
+        <button class="mode-card difficult" data-mode="DIFFICULT"><span class="mode-icon">✧</span><span class="mode-tag">ADVANCED</span><strong>Dark Forest Royalty</strong><span class="mode-desc">Crystal shadows reward careful thinking.</span><span class="mode-meta">7 DISKS · DEEP FOCUS</span><span class="mini-towers"><i></i><i></i><i></i></span><span class="preview-hint">HOVER TO PREVIEW</span></button>
+        <button class="mode-card expert" data-mode="EXPERT"><span class="mode-icon">◇</span><span class="mode-tag">MASTER</span><strong>Midnight Emerald</strong><span class="mode-desc">A luminous trial for the boldest minds.</span><span class="mode-meta">9 DISKS · EXTREME PRECISION</span><span class="mini-towers"><i></i><i></i><i></i></span><span class="preview-hint">HOVER TO PREVIEW</span></button>
+      </div>
+      <div class="bottom-actions"><button class="text-btn" data-screen="leaderboardScreen">View royal records →</button><span>Designed for curious minds</span></div>
+    </section>
+
+    <section id="setupScreen" class="screen hidden">
+      <header class="topbar"><button class="text-btn" data-screen="modeScreen">← Back to realms</button><span class="wordmark">✦ EMERALD ROYAL</span><button class="nav-btn" data-screen="settingsScreen">Settings</button></header>
+      <div class="setup-wrap">
+        <p class="eyebrow">PREPARE YOUR CHALLENGE</p><h2 id="setupTitle">Emerald Garden</h2>
+        <div class="setup-panel glass">
+          <div class="field"><label for="playType">Game type</label><select id="playType"><option value="single">Single player</option><option value="multi">Local multiplayer (2–4)</option></select></div>
+          <div id="singleNameWrap" class="field"><label for="playerName">Your first name</label><input id="playerName" maxlength="20" autocomplete="given-name" placeholder="Enter your name"></div>
+          <div id="multiNamesWrap" class="hidden">
+            <div class="field"><label for="playerCount">Number of players</label><select id="playerCount"><option>2</option><option>3</option><option>4</option></select></div>
+            <div id="playerNameFields" class="name-grid"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="diskCount">Number of disks</label><select id="diskCount"><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></div>
+            <div class="field"><label for="criterion">Winning criterion</label><select id="criterion"><option value="moves">Fewest moves</option><option value="time">Fastest time</option></select></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="sourcePeg">Source tower</label><select id="sourcePeg"><option>A</option><option>B</option><option>C</option></select></div>
+            <div class="field"><label for="targetPeg">Destination tower</label><select id="targetPeg"><option>C</option><option>A</option><option>B</option></select></div>
+          </div>
+          <p id="pegError" class="error-text" role="alert"></p>
+          <p class="setup-note">Minimum possible moves: <strong id="minimumMoves">7</strong></p>
+          <button id="startGameBtn" class="btn btn-primary btn-full">BEGIN CHALLENGE ↗</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen hidden">
+      <header class="game-header">
+        <button class="text-btn" id="leaveGame">← Exit</button>
+        <div><p class="eyebrow" id="gameModeLabel">EMERALD GARDEN</p><h2 id="gameTitle">Royal Challenge</h2></div>
+        <button class="icon-btn" data-screen="settingsScreen" aria-label="Open settings">⚙</button>
+      </header>
+      <div class="stats-row">
+        <div class="stat"><span>PLAYER</span><strong id="activePlayer">—</strong></div>
+        <div class="stat"><span>MOVES</span><strong id="moveCount">0</strong></div>
+        <div class="stat"><span>TIME</span><strong id="timer">00:00.0</strong></div>
+        <div class="stat"><span>MINIMUM</span><strong id="minMoves">7</strong></div>
+      </div>
+      <div class="game-layout">
+        <div class="board-panel glass">
+          <div class="board-caption"><span id="turnPrompt">Select a top disk, then choose a destination tower.</span><span id="assistedLabel" class="pill hidden">ASSISTED RUN</span></div>
+          <div id="board" class="board" aria-label="Tower of Hanoi game board">
+            <div class="tower-column" data-peg="A"><div class="peg-label">A <small id="pegRoleA">SOURCE</small></div><div class="tower" tabindex="0" role="button" aria-label="Tower A"><div class="pole"></div><div class="disks" id="disksA"></div></div></div>
+            <div class="tower-column" data-peg="B"><div class="peg-label">B <small id="pegRoleB">AUXILIARY</small></div><div class="tower" tabindex="0" role="button" aria-label="Tower B"><div class="pole"></div><div class="disks" id="disksB"></div></div></div>
+            <div class="tower-column" data-peg="C"><div class="peg-label">C <small id="pegRoleC">DESTINATION</small></div><div class="tower" tabindex="0" role="button" aria-label="Tower C"><div class="pole"></div><div class="disks" id="disksC"></div></div></div>
+            <div class="base"></div>
+          </div>
+          <p id="gameMessage" class="game-message" aria-live="polite">Choose a tower to begin.</p>
+          <div id="multiReady" class="ready-overlay hidden"><div class="ready-card glass"><p class="eyebrow">NEXT ROYAL CONTENDER</p><h3 id="readyName">Ready?</h3><p>Your personal timer starts when you are ready.</p><button id="readyBtn" class="btn btn-primary">I'M READY</button></div></div>
+        </div>
+        <aside class="control-panel glass">
+          <p class="eyebrow">GAME CONTROLS</p>
+          <button id="restartBtn" class="control-btn">↻ <span>Restart</span></button>
+          <button id="undoBtn" class="control-btn">↶ <span>Undo move</span></button>
+          <button id="hintBtn" class="control-btn">✧ <span>Show hint</span></button>
+          <button id="autoBtn" class="control-btn">▷ <span>Auto play</span></button>
+          <button id="pauseBtn" class="control-btn">Ⅱ <span>Pause</span></button>
+          <div class="autoplay-tools hidden" id="autoTools"><label for="autoSpeed">Auto play speed</label><input id="autoSpeed" type="range" min="1" max="10" value="6"><button id="stopAutoBtn" class="text-btn">Stop auto play</button></div>
+          <div class="solver-status"><span class="status-dot"></span><span id="solverStatus">JavaScript Solver · Active (Fallback)</span></div>
+          <p class="control-help">Click a tower to select its top disk, then click another tower to move it. Drag and drop also works.</p>
+        </aside>
+      </div>
+      <div class="game-footer"><span id="gameModeFoot">EASY · EMERALD GARDEN</span><span>Keys: 1 / 2 / 3 · U Undo · H Hint · Space Pause</span></div>
+    </section>
+
+    <section id="settingsScreen" class="screen hidden">
+      <header class="topbar"><button class="text-btn" data-back>← Back</button><span class="wordmark">✦ SETTINGS</span><span></span></header>
+      <div class="settings-wrap"><p class="eyebrow">MAKE IT YOURS</p><h2>Royal <em>Preferences</em></h2>
+        <div class="settings-grid">
+          <article class="settings-card glass"><h3>Audio</h3>
+            <label class="setting-line">Background music <input id="musicToggle" type="checkbox"></label>
+            <label class="setting-line">Sound effects <input id="sfxToggle" type="checkbox"></label>
+            <label class="setting-line">Mute all <input id="muteToggle" type="checkbox"></label>
+            <label class="setting-line stacked">Music volume <input id="musicVolume" type="range" min="0" max="100"></label>
+            <label class="setting-line stacked">Effects volume <input id="sfxVolume" type="range" min="0" max="100"></label>
+          </article>
+          <article class="settings-card glass"><h3>Visuals & motion</h3>
+            <label class="setting-line">Floating particles <input id="particlesToggle" type="checkbox"></label>
+            <label class="setting-line stacked">Particle density <input id="particleDensity" type="range" min="10" max="100"></label>
+            <label class="setting-line stacked">Animation intensity <input id="animationIntensity" type="range" min="1" max="10"></label>
+            <label class="setting-line">Reduced motion <input id="reducedMotion" type="checkbox"></label>
+            <label class="setting-line">Visual effects <input id="effectsToggle" type="checkbox"></label>
+          </article>
+          <article class="settings-card glass"><h3>Gameplay</h3>
+            <label class="setting-line">Default disk count <select id="defaultDisks"><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></label>
+            <label class="setting-line">Default scoring <select id="defaultCriterion"><option value="moves">Fewest moves</option><option value="time">Fastest time</option></select></label>
+            <label class="setting-line">Show timer <input id="showTimer" type="checkbox"></label>
+            <label class="setting-line">Assisted runs on leaderboard <input id="assistedEligible" type="checkbox"></label>
+          </article>
+          <article class="settings-card glass"><h3>Data & solver</h3>
+            <p class="muted">Solver status: <strong id="settingsSolverStatus">JavaScript Solver · Active (Fallback)</strong></p>
+            <button id="resetSettings" class="btn btn-outline btn-full">Reset settings</button>
+            <button id="clearScores" class="btn btn-danger btn-full">Clear leaderboard</button>
+            <p class="microcopy">Settings and records are stored locally in this browser.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="leaderboardScreen" class="screen hidden">
+      <header class="topbar"><button class="text-btn" data-back>← Back</button><span class="wordmark">✦ ROYAL RECORDS</span><span></span></header>
+      <div class="leader-wrap"><p class="eyebrow">HALL OF ACHIEVEMENT</p><h2>The <em>Leaderboard</em></h2>
+        <div class="leader-filters"><label>Realm <select id="leaderMode"><option value="ALL">All modes</option><option>EASY</option><option>HARD</option><option>DIFFICULT</option><option>EXPERT</option></select></label><label>Disks <select id="leaderDisks"><option value="ALL">All</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></label><label>Rank by <select id="leaderCriterion"><option value="moves">Fewest moves</option><option value="time">Fastest time</option></select></label></div>
+        <div class="table-wrap glass"><table><thead><tr><th>RANK</th><th>PLAYER</th><th>MODE</th><th>DISKS</th><th>TIME</th><th>MOVES</th><th>EFFICIENCY</th><th>DATE</th></tr></thead><tbody id="leaderRows"></tbody></table><div id="leaderEmpty" class="empty-state">No royal records yet. Complete a challenge to claim your place.</div></div>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="screen hidden">
+      <div class="result-card glass"><div class="crest">✦</div><p class="eyebrow" id="resultEyebrow">ROYAL VICTORY</p><h2 id="resultTitle">Congratulations!</h2><p id="resultSubtitle">You have conquered the Emerald Royal Challenge!</p><div id="resultDetails" class="result-stats"></div><div id="multiResults" class="table-wrap hidden"></div><div class="result-actions"><button id="playAgainBtn" class="btn btn-primary">PLAY AGAIN</button><button id="resultModesBtn" class="btn btn-outline">CHANGE MODE</button><button id="resultLeaderboardBtn" class="btn btn-outline">VIEW LEADERBOARD</button></div></div>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
